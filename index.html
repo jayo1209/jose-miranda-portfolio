@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -29,6 +29,19 @@
       --radius-lg: 12px;
     }
 
+    [data-theme="light"] {
+      --navy: #f0f4ff;
+      --navy-mid: #e8eeff;
+      --navy-deep: #d0dbff;
+      --text-light: #374151;
+      --text-muted: #6b7280;
+      --bg-section: #f8f9fa;
+      --bg-card: #ffffff;
+      --border: #e5e7eb;
+      --text-body: #111827;
+      --text-secondary: #6b7280;
+    }
+
     html { scroll-behavior: smooth; }
 
     body {
@@ -36,7 +49,73 @@
       background: #fff;
       color: var(--text-body);
       line-height: 1.7;
+      cursor: none;
+      overflow-x: hidden;
     }
+
+    /* LOADER */
+    #loader {
+      position: fixed;
+      inset: 0;
+      background: #1a1a2e;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      transition: opacity 0.6s ease, visibility 0.6s ease;
+    }
+    #loader.hidden { opacity: 0; visibility: hidden; }
+    .loader-logo {
+      font-size: 48px;
+      font-weight: 600;
+      color: var(--gold);
+      letter-spacing: 2px;
+      margin-bottom: 2rem;
+      animation: loaderPulse 1s ease infinite alternate;
+    }
+    @keyframes loaderPulse { from { opacity: 0.4; } to { opacity: 1; } }
+    .loader-bar {
+      width: 200px;
+      height: 3px;
+      background: rgba(240,192,64,0.2);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .loader-fill {
+      height: 100%;
+      background: var(--gold);
+      border-radius: 10px;
+      animation: loaderFill 1.2s ease forwards;
+    }
+    @keyframes loaderFill { from { width: 0; } to { width: 100%; } }
+
+    /* CURSOR */
+    #cursor {
+      width: 12px;
+      height: 12px;
+      background: var(--gold);
+      border-radius: 50%;
+      position: fixed;
+      pointer-events: none;
+      z-index: 9998;
+      transform: translate(-50%, -50%);
+      transition: transform 0.1s ease, width 0.2s, height 0.2s, opacity 0.2s;
+      mix-blend-mode: difference;
+    }
+    #cursor-glow {
+      width: 40px;
+      height: 40px;
+      border: 1.5px solid rgba(240,192,64,0.4);
+      border-radius: 50%;
+      position: fixed;
+      pointer-events: none;
+      z-index: 9997;
+      transform: translate(-50%, -50%);
+      transition: left 0.12s ease, top 0.12s ease, width 0.2s, height 0.2s;
+    }
+    body:has(a:hover) #cursor, body:has(button:hover) #cursor { width: 20px; height: 20px; }
+    body:has(a:hover) #cursor-glow, body:has(button:hover) #cursor-glow { width: 60px; height: 60px; border-color: rgba(240,192,64,0.6); }
 
     /* NAV */
     nav {
@@ -44,32 +123,60 @@
       justify-content: space-between;
       align-items: center;
       padding: 1rem 2rem;
-      background: var(--navy);
+      background: rgba(26,26,46,0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
       position: sticky;
       top: 0;
       z-index: 100;
+      border-bottom: 1px solid rgba(240,192,64,0.1);
+      transition: background 0.3s;
     }
+    [data-theme="light"] nav { background: rgba(240,244,255,0.85); }
     .nav-logo {
       font-size: 20px;
       font-weight: 600;
       color: var(--gold);
       letter-spacing: 1px;
+      cursor: none;
     }
+    .nav-right { display: flex; align-items: center; gap: 1.5rem; }
     .nav-links { display: flex; gap: 1.5rem; list-style: none; }
     .nav-links a {
       color: var(--text-light);
       font-size: 14px;
       text-decoration: none;
       transition: color 0.2s;
+      cursor: none;
     }
     .nav-links a:hover { color: var(--gold); }
+    .theme-toggle {
+      background: none;
+      border: 1.5px solid rgba(240,192,64,0.4);
+      border-radius: 20px;
+      padding: 5px 12px;
+      color: var(--gold);
+      font-size: 13px;
+      cursor: none;
+      transition: all 0.2s;
+    }
+    .theme-toggle:hover { background: rgba(240,192,64,0.1); }
 
     /* HERO */
     .hero {
-      background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 50%, var(--navy-deep) 100%);
+      position: relative;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
       padding: 6rem 2rem 4rem;
       text-align: center;
+      overflow: hidden;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
     }
+    #particles { position: absolute; inset: 0; z-index: 0; }
+    .hero-content { position: relative; z-index: 1; }
     .hero-badge {
       display: inline-flex;
       align-items: center;
@@ -84,6 +191,7 @@
       margin-bottom: 1.5rem;
       letter-spacing: 1px;
       text-transform: uppercase;
+      backdrop-filter: blur(8px);
     }
     .dot {
       width: 7px;
@@ -93,23 +201,28 @@
       display: inline-block;
       animation: pulse 2s infinite;
     }
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.4; }
-    }
+    @keyframes pulse { 0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(74,222,128,0.4); } 50% { opacity: 0.7; box-shadow: 0 0 0 6px rgba(74,222,128,0); } }
     .hero h1 {
-      font-size: clamp(32px, 6vw, 52px);
+      font-size: clamp(32px, 6vw, 56px);
       font-weight: 600;
-      color: var(--white);
+      color: #fff;
       margin-bottom: 0.5rem;
       line-height: 1.2;
+      min-height: 1.4em;
     }
     .hero h1 span { color: var(--gold); }
-    .hero-sub {
-      font-size: 18px;
-      color: var(--text-muted);
-      margin-bottom: 1rem;
+    .hero h1 .cursor-blink {
+      display: inline-block;
+      width: 3px;
+      background: var(--gold);
+      margin-left: 2px;
+      animation: blink 0.8s step-end infinite;
+      vertical-align: baseline;
+      height: 0.85em;
+      border-radius: 2px;
     }
+    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+    .hero-sub { font-size: 18px; color: var(--text-muted); margin-bottom: 1rem; }
     .hero-desc {
       font-size: 15px;
       color: #778899;
@@ -126,12 +239,12 @@
       font-size: 15px;
       font-weight: 600;
       border: none;
-      cursor: pointer;
+      cursor: none;
       text-decoration: none;
-      transition: background 0.2s, transform 0.1s;
+      transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
       display: inline-block;
     }
-    .btn-primary:hover { background: var(--gold-dark); transform: translateY(-1px); }
+    .btn-primary:hover { background: var(--gold-dark); transform: translateY(-2px); box-shadow: 0 8px 25px rgba(240,192,64,0.4); }
     .btn-outline {
       background: transparent;
       color: var(--gold);
@@ -140,12 +253,13 @@
       font-size: 15px;
       font-weight: 500;
       border: 1.5px solid var(--gold);
-      cursor: pointer;
+      cursor: none;
       text-decoration: none;
       display: inline-block;
-      transition: background 0.2s, transform 0.1s;
+      transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
+      backdrop-filter: blur(8px);
     }
-    .btn-outline:hover { background: rgba(240,192,64,0.1); transform: translateY(-1px); }
+    .btn-outline:hover { background: rgba(240,192,64,0.1); transform: translateY(-2px); box-shadow: 0 8px 25px rgba(240,192,64,0.2); }
     .stats {
       display: flex;
       gap: 3rem;
@@ -155,6 +269,26 @@
     }
     .stat-num { font-size: 32px; font-weight: 600; color: var(--gold); }
     .stat-label { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
+
+    /* SCROLL ANIMATIONS */
+    .reveal {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+    .reveal-left {
+      opacity: 0;
+      transform: translateX(-40px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .reveal-left.visible { opacity: 1; transform: translateX(0); }
+    .reveal-right {
+      opacity: 0;
+      transform: translateX(40px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .reveal-right.visible { opacity: 1; transform: translateX(0); }
 
     /* SECTIONS */
     section { padding: 5rem 2rem; }
@@ -172,6 +306,7 @@
       color: #111827;
       margin-bottom: 0.5rem;
     }
+    [data-theme="light"] .section-title { color: #111827; }
     .section-sub {
       font-size: 15px;
       color: var(--text-secondary);
@@ -198,16 +333,17 @@
       justify-content: center;
       font-size: 28px;
       font-weight: 600;
-      color: var(--navy);
+      color: #1a1a2e;
       flex-shrink: 0;
-      border: 4px solid var(--navy);
+      border: 4px solid #1a1a2e;
+      box-shadow: 0 0 0 0 rgba(240,192,64,0.4);
+      animation: avatarPulse 3s ease infinite;
     }
-    .about-text p {
-      font-size: 15px;
-      color: var(--text-secondary);
-      line-height: 1.85;
-      margin-bottom: 1rem;
+    @keyframes avatarPulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(240,192,64,0.4); }
+      50% { box-shadow: 0 0 0 12px rgba(240,192,64,0); }
     }
+    .about-text p { font-size: 15px; color: var(--text-secondary); line-height: 1.85; margin-bottom: 1rem; }
     .tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 0.5rem; }
     .tag {
       background: var(--white);
@@ -216,7 +352,9 @@
       padding: 4px 14px;
       font-size: 13px;
       color: var(--text-secondary);
+      transition: all 0.2s;
     }
+    .tag:hover { background: var(--gold); color: #1a1a2e; border-color: var(--gold); transform: translateY(-2px); }
 
     /* SERVICES */
     #services { background: var(--white); }
@@ -227,13 +365,30 @@
       gap: 1rem;
     }
     .service-card {
-      background: var(--white);
-      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.7);
+      border: 1px solid rgba(255,255,255,0.3);
       border-radius: var(--radius-lg);
       padding: 1.5rem 1.25rem;
-      transition: box-shadow 0.2s, transform 0.2s;
+      transition: box-shadow 0.3s, transform 0.3s, background 0.3s;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      position: relative;
+      overflow: hidden;
     }
-    .service-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .service-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(240,192,64,0.08) 0%, transparent 60%);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .service-card:hover::before { opacity: 1; }
+    .service-card:hover {
+      box-shadow: 0 8px 32px rgba(240,192,64,0.15), 0 2px 8px rgba(0,0,0,0.08);
+      transform: translateY(-4px);
+      border-color: rgba(240,192,64,0.3);
+    }
     .service-icon {
       width: 48px;
       height: 48px;
@@ -243,7 +398,9 @@
       justify-content: center;
       margin-bottom: 1rem;
       font-size: 22px;
+      transition: transform 0.3s;
     }
+    .service-card:hover .service-icon { transform: scale(1.1) rotate(-5deg); }
     .icon-wp { background: #e8f4fd; }
     .icon-el { background: #fce8f0; }
     .icon-bb { background: #eaf3de; }
@@ -256,11 +413,14 @@
     .contact-inner { max-width: 480px; margin: 0 auto; }
     .contact-header { text-align: center; }
     .contact-box {
-      background: var(--white);
-      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.8);
+      border: 1px solid rgba(255,255,255,0.4);
       border-radius: var(--radius-lg);
       padding: 2rem;
       margin-top: 1.5rem;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.06);
     }
     .field { margin-bottom: 1rem; }
     .field label { display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px; }
@@ -274,29 +434,79 @@
       padding: 10px 14px;
       color: var(--text-body);
       outline: none;
-      transition: border-color 0.2s;
+      transition: border-color 0.2s, box-shadow 0.2s;
     }
-    .field input:focus, .field textarea:focus { border-color: var(--gold); }
+    .field input:focus, .field textarea:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(240,192,64,0.15);
+    }
     .field textarea { height: 110px; resize: none; }
     .submit-btn {
       width: 100%;
       background: var(--gold);
-      color: var(--navy);
+      color: #1a1a2e;
       border: none;
       border-radius: var(--radius-md);
       padding: 13px;
       font-size: 15px;
       font-weight: 600;
-      cursor: pointer;
+      cursor: none;
       margin-top: 0.5rem;
       font-family: 'Inter', sans-serif;
-      transition: background 0.2s;
+      transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
     }
-    .submit-btn:hover { background: var(--gold-dark); }
+    .submit-btn:hover { background: var(--gold-dark); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(240,192,64,0.35); }
+    .submit-btn:active { transform: translateY(0); }
+
+    /* TOAST */
+    #toast {
+      position: fixed;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: #1a1a2e;
+      color: var(--gold);
+      border: 1px solid rgba(240,192,64,0.3);
+      border-radius: var(--radius-md);
+      padding: 12px 24px;
+      font-size: 14px;
+      font-weight: 500;
+      z-index: 9000;
+      transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1), opacity 0.4s;
+      opacity: 0;
+      white-space: nowrap;
+      backdrop-filter: blur(12px);
+    }
+    #toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+    /* BACK TO TOP */
+    #back-to-top {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      width: 44px;
+      height: 44px;
+      background: var(--gold);
+      color: #1a1a2e;
+      border: none;
+      border-radius: 50%;
+      font-size: 20px;
+      cursor: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.3s, transform 0.3s, box-shadow 0.2s;
+      z-index: 500;
+      box-shadow: 0 4px 15px rgba(240,192,64,0.3);
+    }
+    #back-to-top.visible { opacity: 1; transform: translateY(0); }
+    #back-to-top:hover { box-shadow: 0 6px 25px rgba(240,192,64,0.5); transform: translateY(-2px); }
 
     /* FOOTER */
     footer {
-      background: var(--navy);
+      background: #1a1a2e;
       text-align: center;
       padding: 1.75rem 2rem;
       font-size: 13px;
@@ -313,49 +523,73 @@
       .about-text { text-align: center; }
       .tags { justify-content: center; }
       .stats { gap: 1.5rem; }
+      body { cursor: auto; }
+      #cursor, #cursor-glow { display: none; }
     }
   </style>
 </head>
 <body>
 
+  <!-- LOADER -->
+  <div id="loader">
+    <div class="loader-logo">JM.</div>
+    <div class="loader-bar"><div class="loader-fill"></div></div>
+  </div>
+
+  <!-- CURSOR -->
+  <div id="cursor"></div>
+  <div id="cursor-glow"></div>
+
+  <!-- TOAST -->
+  <div id="toast">✅ Message sent! Jose will get back to you soon.</div>
+
+  <!-- BACK TO TOP -->
+  <button id="back-to-top" aria-label="Back to top">↑</button>
+
   <nav>
     <div class="nav-logo">JM.</div>
-    <ul class="nav-links">
-      <li><a href="#about">About</a></li>
-      <li><a href="#services">Services</a></li>
-      <li><a href="#contact">Contact</a></li>
-    </ul>
+    <div class="nav-right">
+      <ul class="nav-links">
+        <li><a href="#about">About</a></li>
+        <li><a href="#services">Services</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+      <button class="theme-toggle" id="theme-toggle">☀️ Light</button>
+    </div>
   </nav>
 
   <section class="hero">
-    <div class="hero-badge"><span class="dot"></span> Available for work</div>
-    <h1>Hi, I'm <span>Jose Miranda</span></h1>
-    <p class="hero-sub">WordPress Developer & Designer</p>
-    <p class="hero-desc">I build and design beautiful WordPress websites using Elementor and Beaver Builder, and help businesses manage their online stores with ease.</p>
-    <div class="hero-btns">
-      <a href="#services" class="btn-primary">View my services</a>
-      <a href="#contact" class="btn-outline">Get in touch</a>
-    </div>
-    <div class="stats">
-      <div class="stat">
-        <div class="stat-num">20+</div>
-        <div class="stat-label">Projects completed</div>
+    <canvas id="particles"></canvas>
+    <div class="hero-content">
+      <div class="hero-badge reveal"><span class="dot"></span> Available for work</div>
+      <h1 id="hero-title"><span></span><span class="cursor-blink"></span></h1>
+      <p class="hero-sub reveal">WordPress Developer & Designer</p>
+      <p class="hero-desc reveal">I build and design beautiful WordPress websites using Elementor and Beaver Builder, and help businesses manage their online stores with ease.</p>
+      <div class="hero-btns reveal">
+        <a href="#services" class="btn-primary">View my services</a>
+        <a href="#contact" class="btn-outline">Get in touch</a>
       </div>
-      <div class="stat">
-        <div class="stat-num">5+</div>
-        <div class="stat-label">Years experience</div>
-      </div>
-      <div class="stat">
-        <div class="stat-num">100%</div>
-        <div class="stat-label">Client satisfaction</div>
+      <div class="stats reveal">
+        <div class="stat">
+          <div class="stat-num" data-target="20">0</div>
+          <div class="stat-label">Projects completed</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num" data-target="5">0</div>
+          <div class="stat-label">Years experience</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num" data-target="100">0</div>
+          <div class="stat-label">Client satisfaction</div>
+        </div>
       </div>
     </div>
   </section>
 
   <section id="about">
     <div class="about-inner">
-      <div class="avatar">JM</div>
-      <div class="about-text">
+      <div class="avatar reveal-left">JM</div>
+      <div class="about-text reveal-right">
         <div class="section-label">About me</div>
         <div class="section-title">Your go-to WordPress specialist</div>
         <p>Hi! I'm Jose, a WordPress developer and designer based in Angeles City. I specialize in building fast, beautiful websites using page builders like Elementor and Beaver Builder — no unnecessary complexity, just clean results.</p>
@@ -374,26 +608,26 @@
 
   <section id="services">
     <div class="services-inner">
-      <div class="section-label">What I do</div>
-      <div class="section-title">Services</div>
-      <div class="section-sub">Here's how I can help your business grow online.</div>
+      <div class="section-label reveal">What I do</div>
+      <div class="section-title reveal">Services</div>
+      <div class="section-sub reveal">Here's how I can help your business grow online.</div>
       <div class="services-grid">
-        <div class="service-card">
+        <div class="service-card reveal">
           <div class="service-icon icon-wp">🌐</div>
           <h3>WordPress Development</h3>
           <p>Custom WordPress sites built from scratch or from themes, optimized for speed and SEO.</p>
         </div>
-        <div class="service-card">
+        <div class="service-card reveal">
           <div class="service-icon icon-el">🎨</div>
           <h3>Elementor Design</h3>
           <p>Pixel-perfect page designs using Elementor — no coding needed, just beautiful results.</p>
         </div>
-        <div class="service-card">
+        <div class="service-card reveal">
           <div class="service-icon icon-bb">🧱</div>
           <h3>Beaver Builder</h3>
           <p>Flexible and powerful layouts built with Beaver Builder for clients who need easy editing.</p>
         </div>
-        <div class="service-card">
+        <div class="service-card reveal">
           <div class="service-icon icon-admin">📦</div>
           <h3>WordPress Admin</h3>
           <p>Product uploads, image organization, category management, and WooCommerce store maintenance.</p>
@@ -404,43 +638,186 @@
 
   <section id="contact">
     <div class="contact-inner">
-      <div class="contact-header">
+      <div class="contact-header reveal">
         <div class="section-label">Let's work together</div>
         <div class="section-title">Get in touch</div>
         <p class="section-sub">Have a project in mind? Drop me a message.</p>
       </div>
-      <div class="contact-box">
+      <div class="contact-box reveal">
         <form id="contact-form" method="POST">
           <input type="hidden" name="_subject" value="New message from your portfolio" />
           <input type="hidden" name="_captcha" value="false" />
           <div class="field">
-            <label>Your name</label>
-            <input type="text" name="name" placeholder="e.g. Maria Santos" required />
+            <label for="name">Your name</label>
+            <input id="name" type="text" name="name" placeholder="e.g. Maria Santos" required />
           </div>
           <div class="field">
-            <label>Email address</label>
-            <input type="email" name="email" placeholder="your@email.com" required />
+            <label for="email">Email address</label>
+            <input id="email" type="email" name="email" placeholder="your@email.com" required />
           </div>
           <div class="field">
-            <label>Message</label>
-            <textarea name="message" placeholder="Tell me about your project..." required></textarea>
+            <label for="message">Message</label>
+            <textarea id="message" name="message" placeholder="Tell me about your project..." required></textarea>
           </div>
-          <button type="submit" class="submit-btn">Send message</button>
+          <button type="submit" class="submit-btn">Send message →</button>
         </form>
       </div>
     </div>
   </section>
 
+  <footer>
+    © 2026 <span>Jose Miranda</span> · WordPress Developer & Designer
+  </footer>
+
   <script>
+    // ── LOADER ──
+    window.addEventListener('load', () => {
+      setTimeout(() => document.getElementById('loader').classList.add('hidden'), 1300);
+    });
+
+    // ── CURSOR ──
+    const cursor = document.getElementById('cursor');
+    const cursorGlow = document.getElementById('cursor-glow');
+    document.addEventListener('mousemove', e => {
+      cursor.style.left = e.clientX + 'px';
+      cursor.style.top = e.clientY + 'px';
+      cursorGlow.style.left = e.clientX + 'px';
+      cursorGlow.style.top = e.clientY + 'px';
+    });
+
+    // ── THEME TOGGLE ──
+    const themeBtn = document.getElementById('theme-toggle');
+    themeBtn.addEventListener('click', () => {
+      const html = document.documentElement;
+      const isDark = html.getAttribute('data-theme') === 'dark';
+      html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+      themeBtn.textContent = isDark ? '🌙 Dark' : '☀️ Light';
+    });
+
+    // ── PARTICLES ──
+    const canvas = document.getElementById('particles');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+
+    function resize() {
+      canvas.width = canvas.offsetWidth;
+      canvas.height = canvas.offsetHeight;
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    for (let i = 0; i < 80; i++) {
+      particles.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        r: Math.random() * 1.5 + 0.3,
+        dx: (Math.random() - 0.5) * 0.4,
+        dy: (Math.random() - 0.5) * 0.4,
+        opacity: Math.random() * 0.6 + 0.2,
+      });
+    }
+
+    function drawParticles() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particles.forEach(p => {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(240,192,64,${p.opacity})`;
+        ctx.fill();
+        p.x += p.dx;
+        p.y += p.dy;
+        if (p.x < 0 || p.x > canvas.width) p.dx *= -1;
+        if (p.y < 0 || p.y > canvas.height) p.dy *= -1;
+      });
+
+      // connect nearby particles
+      for (let i = 0; i < particles.length; i++) {
+        for (let j = i + 1; j < particles.length; j++) {
+          const dx = particles[i].x - particles[j].x;
+          const dy = particles[i].y - particles[j].y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < 100) {
+            ctx.beginPath();
+            ctx.strokeStyle = `rgba(240,192,64,${0.08 * (1 - dist / 100)})`;
+            ctx.lineWidth = 0.5;
+            ctx.moveTo(particles[i].x, particles[i].y);
+            ctx.lineTo(particles[j].x, particles[j].y);
+            ctx.stroke();
+          }
+        }
+      }
+      requestAnimationFrame(drawParticles);
+    }
+    drawParticles();
+
+    // ── TYPING EFFECT ──
+    const titleEl = document.querySelector('#hero-title span');
+    const fullText = "Hi, I'm Jose Miranda";
+    let charIndex = 0;
+    function type() {
+      if (charIndex < fullText.length) {
+        const char = fullText[charIndex];
+        const colored = fullText.slice(0, 14);
+        if (charIndex < 8) {
+          titleEl.innerHTML = fullText.slice(0, charIndex + 1);
+        } else {
+          titleEl.innerHTML = 'Hi, I\'m <span style="color:var(--gold)">' + fullText.slice(8, charIndex + 1) + '</span>';
+        }
+        charIndex++;
+        setTimeout(type, 70);
+      }
+    }
+    setTimeout(type, 1400);
+
+    // ── SCROLL REVEAL ──
+    const reveals = document.querySelectorAll('.reveal, .reveal-left, .reveal-right');
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); } });
+    }, { threshold: 0.15 });
+    reveals.forEach(el => observer.observe(el));
+
+    // ── COUNTER ANIMATION ──
+    const counters = document.querySelectorAll('.stat-num[data-target]');
+    const suffixes = { 20: '+', 5: '+', 100: '%' };
+    const counterObserver = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (!e.isIntersecting) return;
+        const el = e.target;
+        const target = +el.getAttribute('data-target');
+        const suffix = suffixes[target] || '';
+        let current = 0;
+        const step = target / 50;
+        const timer = setInterval(() => {
+          current = Math.min(current + step, target);
+          el.textContent = Math.floor(current) + suffix;
+          if (current >= target) clearInterval(timer);
+        }, 30);
+        counterObserver.unobserve(el);
+      });
+    }, { threshold: 0.5 });
+    counters.forEach(c => counterObserver.observe(c));
+
+    // ── BACK TO TOP ──
+    const backBtn = document.getElementById('back-to-top');
+    window.addEventListener('scroll', () => {
+      backBtn.classList.toggle('visible', window.scrollY > 400);
+    });
+    backBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+    // ── CONTACT FORM + TOAST ──
     (function() {
       var p1 = 'jayo.miranda', p2 = 'icloud.com';
       document.getElementById('contact-form').action = 'https://formsubmit.co/' + p1 + '@' + p2;
     })();
-  </script>
 
-  <footer>
-    © 2026 <span>Jose Miranda</span> · WordPress Developer & Designer
-  </footer>
+    document.getElementById('contact-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const toast = document.getElementById('toast');
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 4000);
+      this.reset();
+    });
+  </script>
 
 </body>
 </html>
